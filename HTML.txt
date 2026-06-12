@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ระบบตรวจสอบสาธารณูปโภค - รพ.เขาสุกิม</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Sarabun', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+      padding-bottom: 40px;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a, #0ea5e9);
+      color: #ffffff;
+      padding: 24px 16px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+    }
+
+    .header-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-icon {
+      font-size: 2.3rem;
+      color: #38bdf8;
+    }
+
+    .logo-area h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+
+    .logo-area p {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    .nav-wrapper-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .nav-bar {
+      display: flex;
+      width: 100%;
+      background-color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+
+    .nav-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 16px 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 4px solid transparent;
+    }
+
+    .nav-btn i { font-size: 1.25rem; }
+
+    .nav-btn.active {
+      color: #0ea5e9;
+      border-bottom-color: #0ea5e9;
+      background-color: #f0f9ff;
+      font-weight: 600;
+    }
+
+    .main-content {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .content-card {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(148, 163, 184, 0.08);
+      border: 1px solid #edf2f7;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #0ea5e9;
+      padding-left: 10px;
+    }
+
+    .section-title.text-danger {
+      color: #dc2626;
+      border-left-color: #ef4444;
+    }
+
+    .metrics-grid {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      flex: 1;
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 16px rgba(148, 163, 184, 0.08);
+    }
+
+    .metric-card.normal-card { border-left: 6px solid #10b981; }
+    .metric-card.abnormal-card { border-left: 6px solid #f43f5e; }
+
+    .card-status-icon { font-size: 2rem; }
+    .normal-card .card-status-icon { color: #10b981; }
+    .abnormal-card .card-status-icon { color: #f43f5e; }
+
+    .metric-info h3 { font-size: 0.9rem; color: #64748b; font-weight: 500; }
+    .metric-info span { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
+
+    .table-responsive { overflow-x: auto; }
+    .modern-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .modern-table th {
+      background-color: #f1f5f9;
+      color: #1e3a8a;
+      font-weight: 600;
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+    .modern-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.9rem;
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .main-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #334155;
+    }
+
+    select, input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: #334155;
+      background-color: #fff;
+      outline: none;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+    }
+
+    .check-grid-item {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #bae6fd;
+    }
+
+    .check-title {
+      font-weight: 600;
+      color: #1e293b;
+      max-width: 65%;
+      font-size: 0.95rem;
+    }
+
+    .radio-group-lux { display: flex; gap: 10px; }
+    .radio-label { cursor: pointer; display: flex; align-items: center; }
+    .radio-label input { display: none; }
+
+    .radio-span {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background-color: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #64748b;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .radio-label:active .radio-span { transform: scale(0.94); }
+
+    .radio-label-normal input:checked + .radio-span {
+      background-color: #10b981;
+      border-color: #10b981;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+    }
+
+    .radio-label-abnormal input:checked + .radio-span {
+      background-color: #f43f5e;
+      border-color: #f43f5e;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(244, 63, 94, 0.35);
+    }
+
+    .inspector-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 12px;
+    }
+    .inspector-row .form-group { margin-bottom: 0; flex: 1; }
+
+    .btn-primary-gradient {
+      width: 100%;
+      background: linear-gradient(135deg, #1e3a8a, #0ea5e9);
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+      transition: transform 0.1s ease;
+    }
+    .btn-primary-gradient:active { transform: scale(0.98); }
+    .btn-primary-gradient:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: #1e3a8a;
+      border: 1.5px solid #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-bottom: 20px;
+      transition: transform 0.1s ease;
+    }
+    .btn-secondary:active { transform: scale(0.96); }
+
+    .btn-danger-icon {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .date-display-box {
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      color: #1e40af;
+      margin-bottom: 20px;
+    }
+
+    .history-grid { display: flex; flex-direction: column; gap: 12px; }
+    .history-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+    }
+    .hist-meta h4 { color: #1e3a8a; font-size: 0.95rem; margin-bottom: 4px; }
+    .hist-meta p { font-size: 0.85rem; color: #64748b; }
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.ok { background-color: #d1fae5; color: #065f46; }
+    .status-badge.fail { background-color: #ffe4e6; color: #991b1b; }
+
+    .alert-box-item {
+      background-color: #fff1f2;
+      border-left: 4px solid #f43f5e;
+      padding: 14px;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 10px;
+    }
+    .alert-box-item h4 { font-size: 0.9rem; color: #991b1b; }
+    .alert-box-item p { font-size: 0.85rem; color: #4c0519; margin-top: 4px; }
+    .empty-text { text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 10px 0; }
+
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .badge-filter { background-color: #e2e8f0; color: #475569; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 500; }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loading-overlay.active { display: flex; }
+    .loading-spinner {
+      width: 52px; height: 52px;
+      border: 5px solid #e0f2fe;
+      border-top-color: #0ea5e9;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-overlay p { color: #ffffff; font-weight: 600; font-size: 1rem; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <p id="loading-text">กำลังโหลดข้อมูล...</p>
+</div>
+
+<header class="app-header">
+  <div class="header-container">
+    <div class="logo-area">
+      <i class="fa-solid fa-charging-station logo-icon"></i>
+      <div>
+        <h1>ระบบเฝ้าระวังและตรวจสอบสาธารณูปโภค</h1>
+        <p>โรงพยาบาลเขาสุกิม จ.จันทบุรี</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="nav-wrapper-container">
+  <nav class="nav-bar">
+    <button class="nav-btn active" onclick="switchTab('dashboard-tab', this)">
+      <i class="fa-solid fa-chart-pie"></i> แดชบอร์ด
+    </button>
+    <button class="nav-btn" onclick="switchTab('form-tab', this)">
+      <i class="fa-solid fa-pen-to-square"></i> บันทึกใหม่
+    </button>
+    <button class="nav-btn" onclick="switchTab('history-tab', this)">
+      <i class="fa-solid fa-clock-history"></i> ประวัติการตรวจ
+    </button>
+  </nav>
+</div>
+
+<main class="main-content">
+  <section id="dashboard-tab" class="tab-content active">
+    <div class="metrics-grid">
+      <div class="metric-card normal-card">
+        <i class="fa-solid fa-circle-check card-status-icon"></i>
+        <div class="metric-info">
+          <h3>รายการสถานะปกติ</h3>
+          <span id="metric-normal-count">0</span>
+        </div>
+      </div>
+      <div class="metric-card abnormal-card">
+        <i class="fa-solid fa-circle-exclamation card-status-icon"></i>
+        <div class="metric-info">
+          <h3>รายการตรวจพบจุดชำรุด</h3>
+          <span id="metric-abnormal-count">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h2 class="section-title"><i class="fa-solid fa-table-list"></i> สรุปความเรียบร้อยแยกตามฝ่ายงาน</h2>
+      <div class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>ฝ่ายระบบงานสาธารณูปโภค</th>
+              <th>บันทึกรวมทั้งหมด</th>
+              <th>ผ่าน (ปกติ)</th>
+              <th>พบจุดชำรุด</th>
+            </tr>
+          </thead>
+          <tbody id="summary-table-body">
+            <tr><td colspan="4" style="text-align:center;">กำลังดึงข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h2 class="section-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> รายงานจุดชำรุดเฝ้าระวังล่าสุด (ต้องได้รับการแก้ไข)</h2>
+      <div id="abnormal-list" class="alert-list-container">
+        <p class="empty-text">ไม่มีจุดชำรุดในระบบ ณ ขณะนี้</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="form-tab" class="tab-content">
+    <div class="content-card">
+      <h2 class="section-title"><i class="fa-solid fa-sliders"></i> ขั้นตอนที่ 1: เลือกหมวดหมู่ระบบสาธารณูปโภค</h2>
+      <div class="form-group">
+        <label for="system-selector" class="main-label">เลือกระบบงานที่ต้องการบันทึกตรวจเช็ค</label>
+        <select id="system-selector" onchange="renderDynamicForm(this.value)">
+          <option value="">-- กรุณาเลือกเปิดระบบงาน --</option>
+          <option value="water">💧 ระบบผลิตและจ่ายน้ำประปา</option>
+          <option value="waste">☣️ ระบบบำบัดน้ำเสียและสิ่งแวดล้อม</option>
+          <option value="power">⚡ ระบบเครื่องกำเนิดไฟฟ้าสำรอง (โรงไฟฟ้า)</option>
+        </select>
+      </div>
+    </div>
+
+    <form id="inspection-main-form" onsubmit="handleFormSubmit(event)" style="display:none;">
+      <div id="dynamic-fields-area"></div>
+
+      <div class="content-card">
+        <h2 class="section-title"><i class="fa-solid fa-users-gear"></i> เจ้าหน้าที่ผู้รับผิดชอบการตรวจสอบ</h2>
+
+        <div id="inspectors-wrapper">
+          <div class="inspector-row default-inspector">
+            <div class="form-group">
+              <label>ชื่อ-นามสกุลผู้ตรวจ</label>
+              <input type="text" class="ins-name" value="นายกรวิก ละภักดี" readonly disabled>
+            </div>
+            <div class="form-group">
+              <label>ตำแหน่งงาน</label>
+              <input type="text" class="ins-role" value="นายช่างเทคนิค" readonly disabled>
+            </div>
+            <div class="action-placeholder"></div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="addInspectorRow()">
+          <i class="fa-solid fa-user-plus"></i> + เพิ่มผู้ตรวจสอบร่วมหน้างาน
+        </button>
+
+        <div class="date-display-box">
+          <i class="fa-solid fa-calendar-day"></i> วันเวลาตรวจสอบสภาพปัจจุบัน: <span id="current-thai-date"></span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary-gradient" id="submit-btn">
+            <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูลระบบ
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section id="history-tab" class="tab-content">
+    <div class="content-card">
+      <div class="history-header">
+        <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> สมุดบันทึกประวัติการตรวจสอบย้อนหลังล่าสุด</h2>
+        <span class="badge-filter">แสดงเฉพาะผลในรอบ 30 วัน</span>
+      </div>
+      <div id="history-cards-container" class="history-grid">
+        <p class="empty-text">ไม่พบประวัติการบันทึกข้อมูลในระบบ</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // ============================================================
+  // 🔧 ตั้งค่า URL ของ Google Apps Script Web App ตรงนี้
+  // Deploy → New deployment → Web app → Execute as: Me → Anyone
+  // ============================================================
+  const GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+  // ============================================================
+
+  // ── Helpers ──────────────────────────────────────────────────
+
+  function showLoading(text = "กำลังโหลดข้อมูล...") {
+    document.getElementById('loading-text').innerText = text;
+    document.getElementById('loading-overlay').classList.add('active');
+  }
+
+  function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('active');
+  }
+
+  async function callGAS(action, payload = {}) {
+    const body = JSON.stringify({ action, ...payload });
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      // Google Apps Script ต้องการ text/plain เพื่อเลี่ยง CORS preflight
+      headers: { "Content-Type": "text/plain" },
+      body
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // ── Init ─────────────────────────────────────────────────────
+
+  document.addEventListener("DOMContentLoaded", function () {
+    refreshDashboard();
+    updateThaiTimeDisplay();
+  });
+
+  // ── Navigation ───────────────────────────────────────────────
+
+  function switchTab(tabId, btnElement) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btnElement.classList.add('active');
+    if (tabId === 'dashboard-tab' || tabId === 'history-tab') refreshDashboard();
+  }
+
+  // ── Date display ─────────────────────────────────────────────
+
+  function updateThaiTimeDisplay() {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const el = document.getElementById('current-thai-date');
+    if (el) el.innerText = new Date().toLocaleDateString('th-TH', options);
+  }
+
+  // ── Dashboard ────────────────────────────────────────────────
+
+  async function refreshDashboard() {
+    showLoading("กำลังดึงข้อมูลแดชบอร์ด...");
+    try {
+      const data = await callGAS("getDashboardData");
+
+      document.getElementById('metric-normal-count').innerText = data.totalNormal || 0;
+      document.getElementById('metric-abnormal-count').innerText = data.totalAbnormal || 0;
+
+      const tbody = document.getElementById('summary-table-body');
+      if (data.summaries) {
+        tbody.innerHTML = `
+          <tr>
+            <td>💧 ระบบผลิตและจ่ายน้ำประปา</td>
+            <td>${data.summaries.Water_Check?.total || 0}</td>
+            <td style="color:#10b981;font-weight:600;">${data.summaries.Water_Check?.normal || 0}</td>
+            <td style="color:#f43f5e;font-weight:600;">${data.summaries.Water_Check?.abnormal || 0}</td>
+          </tr>
+          <tr>
+            <td>☣️ ระบบบำบัดน้ำเสียและสิ่งแวดล้อม</td>
+            <td>${data.summaries['Eco-Treat_Check']?.total || 0}</td>
+            <td style="color:#10b981;font-weight:600;">${data.summaries['Eco-Treat_Check']?.normal || 0}</td>
+            <td style="color:#f43f5e;font-weight:600;">${data.summaries['Eco-Treat_Check']?.abnormal || 0}</td>
+          </tr>
+          <tr>
+            <td>⚡ ระบบเครื่องกำเนิดไฟฟ้าสำรอง</td>
+            <td>${data.summaries.Power_Check?.total || 0}</td>
+            <td style="color:#10b981;font-weight:600;">${data.summaries.Power_Check?.normal || 0}</td>
+            <td style="color:#f43f5e;font-weight:600;">${data.summaries.Power_Check?.abnormal || 0}</td>
+          </tr>`;
+      }
+
+      const alertList = document.getElementById('abnormal-list');
+      if (!data.recentAbnormals || data.recentAbnormals.length === 0) {
+        alertList.innerHTML = '<p class="empty-text">ไม่มีจุดชำรุดในระบบ ณ ขณะนี้</p>';
+      } else {
+        alertList.innerHTML = data.recentAbnormals.map(item => `
+          <div class="alert-box-item">
+            <h4>[${item.system}] ตรวจพบจุดชำรุดเฝ้าระวัง</h4>
+            <p>🚨 <b>รายละเอียดคัดกรอง:</b> ${item.issue}</p>
+            <p style="font-size:0.75rem;color:#881337;margin-top:4px;"><i class="fa-solid fa-clock"></i> วันเวลา: ${item.date} น.</p>
+          </div>`).join('');
+      }
+
+      const histContainer = document.getElementById('history-cards-container');
+      if (!data.history || data.history.length === 0) {
+        histContainer.innerHTML = '<p class="empty-text">ไม่พบประวัติการบันทึกข้อมูลในรอบ 30 วัน</p>';
+      } else {
+        histContainer.innerHTML = data.history.map(item => `
+          <div class="history-card">
+            <div class="hist-meta">
+              <h4>${item.system}</h4>
+              <p><i class="fa-solid fa-user"></i> ผู้ตรวจ: ${item.inspector}</p>
+              <p><i class="fa-solid fa-calendar"></i> วันที่: ${item.date}</p>
+            </div>
+            <span class="status-badge ${item.status.indexOf('ปกติ') > -1 ? 'ok' : 'fail'}">${item.status}</span>
+          </div>`).join('');
+      }
+    } catch (err) {
+      console.error("refreshDashboard error:", err);
+      Swal.fire({ title: 'เชื่อมต่อไม่ได้', text: 'ไม่สามารถดึงข้อมูลจาก Google Apps Script ได้ กรุณาตรวจสอบ GAS_URL', icon: 'error' });
+    } finally {
+      hideLoading();
+    }
+  }
+
+  // ── Dynamic form ─────────────────────────────────────────────
+
+  function renderDynamicForm(system) {
+    const form = document.getElementById('inspection-main-form');
+    const area = document.getElementById('dynamic-fields-area');
+    if (!system) { form.style.display = "none"; area.innerHTML = ""; return; }
+    form.style.display = "block";
+    let html = "";
+
+    if (system === "water") {
+      html = `
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-square-poll-horizontal"></i> รายการวัดค่าสารเคมีและสาธารณูปโภค</h2>
+          <div class="form-group"><label>คลอรีนหลงเหลือ มก./ล.(อิสระ)</label><input type="number" step="0.01" name="คลอรีนหลงเหลือ มก./ล.(อิสระ)" required placeholder="0.00"></div>
+          <div class="form-group"><label>ค่า pH</label><input type="number" step="0.01" name="ค่า pH" required placeholder="0.00"></div>
+          <div class="form-group"><label>หน่วยไฟฟ้า (kWh) / ชั่วโมง</label><input type="number" step="0.01" name="หน่วยไฟฟ้า (kWh) / ชั่วโมง" required placeholder="0.00"></div>
+          <div class="form-group"><label>ปริมาณน้ำที่ใช้ (m³)</label><input type="number" step="0.01" name="ปริมาณน้ำที่ใช้ (m³)" required placeholder="0.00"></div>
+        </div>
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-list-check"></i> ตรวจสอบสถานะโครงสร้างทางกายภาพ</h2>
+          ${makeRadioField("โครงสร้าง")}
+          ${makeRadioField("มาตรวัดน้ำ(ถังเก็บน้ำดิบ)")}
+          ${makeRadioField("ระดับภายใน(แรงดันมอเดอร์)")}
+          ${makeRadioField("โครงสร้างหอถังสูง")}
+          ${makeRadioField("มาตรวัดน้ำหอถังสูง")}
+          ${makeRadioField("ปั๊มตัวที่ 1")}
+          ${makeRadioField("ปั๊มตัวที่ 2")}
+          ${makeRadioField("ตู้ควบคุมไฟฟ้า")}
+          ${makeRadioField("ปั๊มจ่ายสารคลอรีน")}
+          ${makeRadioField("ชั้นสารกรอง")}
+          <div class="form-group"><label>หมายเหตุ / ปัญหาที่พบ</label><textarea name="หมายเหตุ / ปัญหาที่พบ" rows="3"></textarea></div>
+        </div>`;
+    } else if (system === "waste") {
+      html = `
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-square-poll-horizontal"></i> ผลการบันทึกค่าเคมีน้ำและระบบคำนวณ</h2>
+          <div class="form-group"><label>คลอรีนหลงเหลือ มก./ล.</label><input type="number" step="0.01" name="คลอรีนหลงเหลือ มก./ล." required placeholder="0.00"></div>
+          <div class="form-group"><label>ปริมาณตะกอน มก./ล.</label><input type="number" step="0.01" name="ปริมาณตะกอน มก./ล." required placeholder="0.00"></div>
+          <div class="form-group"><label>PH</label><input type="number" step="0.01" name="PH" required placeholder="0.00"></div>
+          <div class="form-group"><label>D.O มก./ล.</label><input type="number" step="0.01" name="D.O มก./ล." required placeholder="0.00"></div>
+          <div class="form-group"><label>กิโลวัตต์/ชม</label><input type="number" step="0.01" name="กิโลวัตต์/ชม" required placeholder="0.00"></div>
+          <div class="form-group"><label>กาลักน้ำ/ชม</label><input type="number" step="0.01" name="กาลักน้ำ/ชม" required placeholder="0.00"></div>
+          <div class="form-group"><label>ปริมาณน้ำใช้ในทุกกิจกรรม(ลบ.ม.)</label><input type="number" step="0.01" name="ปริมาณน้ำใช้ในทุกกิจกรรม(ลบ.ม.)" required placeholder="0.00"></div>
+          <div class="form-group"><label>ปริมาณน้ำเสียที่เข้าระบบ(ลบ.ม.)</label><input type="number" step="0.01" name="ปริมาณน้ำเสียที่เข้าระบบ(ลบ.ม.)" required placeholder="0.00"></div>
+        </div>
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-list-check"></i> ตรวจสอบการเดินระบบแมคคานิกส์และจุดสะสมขยะ</h2>
+          ${makeRadioField("ระบบไฟ RST")}
+          ${makeRadioField("ปั๊มสูบ 1")}
+          ${makeRadioField("ปั๊มสูบ 2")}
+          ${makeRadioField("การระบายน้ำทิ้งจากระบบบำบัดน้ำเสีย", "ระบาย", "ไม่ระบาย")}
+          ${makeRadioField("ระบบบำบัดน้ำเสียภาพรวม")}
+          ${makeRadioField("เครื่องสูบน้ำ")}
+          ${makeRadioField("เครื่องเติมอากาศ")}
+          ${makeRadioField("เครื่องกวน/เครื่องผสมน้ำเสีย")}
+          ${makeRadioField("เครื่องกวน/ผสมสารเคมี")}
+          ${makeRadioField("เครื่องสูบตะกอน")}
+          ${makeRadioField("ตู้ควบคุมไฟ", "ไฟติด/ปกติ", "ไม่ติด/ผิดปกติ")}
+          ${makeRadioField("ตะแกรงดักขยะ", "ไม่มีขยะ/ปกติ", "มีขยะ/ผิดปกติ")}
+          ${makeRadioField("Manhole (ท่อพักระบายน้ำ)", "ไม่มีขยะ/ปกติ", "มีขยะ/ผิดปกติ")}
+          ${makeRadioField("การล้างถังดริปคลอรีน", "ไม่ต้อง", "ต้องล้าง")}
+          <div class="form-group"><label>หมายเหตุ / ปัญหาและแนวทางแก้ไข</label><textarea name="หมายเหตุ / ปัญหาและแนวทางแก้ไข" rows="3"></textarea></div>
+        </div>`;
+    } else if (system === "power") {
+      html = `
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> ข้อมูลเครื่องกำเนิดไฟฟ้าสำรอง</h2>
+          <div class="form-group">
+            <label>เครื่องกำเนิดไฟฟ้า (กิโลวัตต์)</label>
+            <select name="เครื่องกำเนิดไฟฟ้า (กิโลวัตต์)">
+              <option value="100 กิโลวัตต์">100 กิโลวัตต์</option>
+              <option value="300 กิโลวัตต์">300 กิโลวัตต์</option>
+            </select>
+          </div>
+        </div>
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-square-poll-horizontal"></i> ข้อมูลสภาพเครื่องยนต์และพลังงานคงเหลือ</h2>
+          <div class="form-group"><label>เชื้อเพลิงคงเหลือ (%)</label><input type="number" step="0.01" min="0" max="100" name="เชื้อเพลิงคงเหลือ (%)" required placeholder="0.00"></div>
+          <div class="form-group"><label>ชั่วโมงการทำงานสะสม (Hours)</label><input type="number" step="0.01" name="ชั่วโมงการทำงานสะสม (Hours)" required placeholder="0.00"></div>
+        </div>
+        <div class="content-card">
+          <h2 class="section-title"><i class="fa-solid fa-list-check"></i> ตรวจเช็คสถานะทางกายภาพของเครื่องยนต์</h2>
+          ${makeRadioField("ระบบ Auto", "ปกติ", "ไม่ปกติ")}
+          ${makeRadioField("หม้อน้ำ", "ปกติ", "ไม่ปกติ")}
+          ${makeRadioField("น้ำกลั่น", "ปกติ", "ไม่ปกติ")}
+          ${makeRadioField("น้ำมันเครื่อง", "ปกติ (เพียงพอ)", "ไม่ปกติ (ไม่เพียงพอ)")}
+          ${makeRadioField("สายพาน", "ปกติ", "ไม่ปกติ")}
+          <div class="form-group"><label>หมายเหตุ / สาเหตุและแนวทางแก้ไข</label><textarea name="หมายเหตุ / สาเหตุและแนวทางแก้ไข" rows="3"></textarea></div>
+        </div>`;
+    }
+
+    area.innerHTML = html;
+    updateThaiTimeDisplay();
+  }
+
+  function makeRadioField(title, textNormal = "ปกติ", textAbnormal = "ผิดปกติ") {
+    return `
+      <div class="check-grid-item">
+        <span class="check-title">${title}</span>
+        <div class="radio-group-lux">
+          <label class="radio-label radio-label-normal">
+            <input type="radio" name="${title}" value="${textNormal}" checked>
+            <span class="radio-span">${textNormal}</span>
+          </label>
+          <label class="radio-label radio-label-abnormal">
+            <input type="radio" name="${title}" value="${textAbnormal}">
+            <span class="radio-span">${textAbnormal}</span>
+          </label>
+        </div>
+      </div>`;
+  }
+
+  // ── Inspector rows ────────────────────────────────────────────
+
+  function addInspectorRow() {
+    const wrapper = document.getElementById('inspectors-wrapper');
+    const newRow = document.createElement('div');
+    newRow.className = 'inspector-row';
+    newRow.innerHTML = `
+      <div class="form-group"><label>ชื่อ-นามสกุลผู้ร่วมตรวจ</label><input type="text" class="ins-name" required></div>
+      <div class="form-group"><label>ตำแหน่งงาน</label><input type="text" class="ins-role" required></div>
+      <button type="button" class="btn-danger-icon" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>`;
+    wrapper.appendChild(newRow);
+  }
+
+  // ── Form submit ───────────────────────────────────────────────
+
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
+
+    const systemType = document.getElementById('system-selector').value;
+    const mainForm = document.getElementById('inspection-main-form');
+    const formDataObj = {};
+
+    mainForm.querySelectorAll('input, select, textarea').forEach(input => {
+      if (!input.name) return;
+      if (input.type === 'radio') {
+        if (input.checked) formDataObj[input.name] = input.value;
+      } else {
+        formDataObj[input.name] = input.value;
+      }
+    });
+
+    const inspectors = [{ name: "นายกรวิก ละภักดี", role: "นายช่างเทคนิค" }];
+    document.querySelectorAll('.inspector-row:not(.default-inspector)').forEach(row => {
+      const nameVal = row.querySelector('.ins-name').value;
+      const roleVal = row.querySelector('.ins-role').value;
+      if (nameVal && roleVal) inspectors.push({ name: nameVal, role: roleVal });
+    });
+
+    try {
+      const res = await callGAS("saveInspectionData", { systemType, formData: formDataObj, inspectors });
+
+      if (res.success) {
+        await Swal.fire({
+          title: 'บันทึกข้อมูลสำเร็จ!',
+          text: 'ระบบทำการลงบันทึกใน Google Sheets และแจ้งเตือนผ่าน Telegram แล้ว',
+          icon: 'success',
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#0ea5e9'
+        });
+
+        mainForm.reset();
+        document.getElementById('system-selector').value = "";
+        renderDynamicForm("");
+        await refreshDashboard();
+        switchTab('dashboard-tab', document.querySelectorAll('.nav-btn')[0]);
+      } else {
+        Swal.fire({ title: 'เกิดข้อผิดพลาด!', text: res.message, icon: 'error', confirmButtonText: 'ลองใหม่' });
+      }
+    } catch (err) {
+      Swal.fire({ title: 'เชื่อมต่อไม่ได้', text: 'ไม่สามารถส่งข้อมูลไปยัง Google Apps Script ได้: ' + err.message, icon: 'error' });
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูลระบบ';
+    }
+  }
+</script>
+
+</body>
+</html>
